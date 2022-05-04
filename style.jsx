@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
     },
     text_font: {
         fontWeight: '700',
-        fontSize: 25
+        fontSize: 30
     },
     new_font: {
         fontSize: 15,
@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
     touchableone: {
         width: '100%',
         backgroundColor: '#f6f6f6',
-        height: 60,
+        height: 70,
         borderRadius: 10,
         display: 'flex',
         justifyContent: 'center',
@@ -43,7 +43,12 @@ export const styles = StyleSheet.create({
     },
     inputone: {
         width: '90%',
-        height: 50,
+        height: 60,
+        borderRadius: 10,
+        color: 'black',
+    },
+    inputtwo: {
+        height: 60,
         borderRadius: 10,
         color: 'black',
     },
@@ -58,8 +63,24 @@ export const styles = StyleSheet.create({
         display:'flex',
         justifyContent:'center', 
         alignItems:'center',
-        backgroundColor:'#0066ff',
+        backgroundColor:'#eeee',
         height:55,
         borderRadius:10,
+    },
+    createAccount:{
+        width:'100%', 
+        display:'flex',
+        justifyContent:'center', 
+        alignItems:'center',
+        height:55,
+        borderRadius:10,
+    },
+    signinput : {
+        backgroundColor:'white', 
+        height:50,
+        width:'100%',
+        borderRadius:10,
+        paddingLeft:20, paddingRight:20,
+        marginTop:5
     },
 });
