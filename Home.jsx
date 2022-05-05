@@ -1,31 +1,44 @@
 import { useState, useEffect } from 'react';
-import { Text, View, TouchableOpacity, TextInput, Keyboard, KeyboardAvoidingView,Image } from 'react-native';
+import { Text, View, TouchableOpacity, TextInput, Keyboard, KeyboardAvoidingView, Image } from 'react-native';
 import { styles } from './style';
 import Icon from 'react-native-vector-icons/Feather';
 import Ant from 'react-native-vector-icons/AntDesign';
 import Material from 'react-native-vector-icons/MaterialIcons';
-export const Home = ({navigation,route}) => {
+import axios from 'axios';
+import { ActivityIndicator } from 'react-native';
+export const Home = ({ navigation, route }) => {
     const [focusinputone, setfocusInputone] = useState(false);
     const [focusinputtwo, setfocusInputtwo] = useState(false);
     const [keyboardStatus, setKeyboardStatus] = useState(false);
     const [loginusername, setloginUsername] = useState('');
     const [loginpassword, setloginPassword] = useState('');
     const [passwordvisibility, setpasswordVisibility] = useState(true);
-    
-  
-    const Login = ()=>{
-        alert('login')
+    const [loginstatus, setloginStatus] = useState(false);
+    const [isloading, setisLoading] = useState(false);
+    const Login = () => {
+        if (loginusername !== '' && loginpassword !== '') {
+            setisLoading(true);
+            const data = { username: loginusername, password: loginpassword };
+            axios.post(`http://172.20.10.12:3000/login`, {
+                data: data,
+            }).then(res => {
+                setisLoading(false)
+                if (res.data) setloginStatus(true)
+                else setloginStatus(true), setTimeout(() => {
+                    setloginStatus(false)
+                }, 2000);
+            })
+        }
+
+
     }
-    const Sign = () => {
-        navigation.navigate('sign');
-        
-    }
+
     return (
         <View style={styles.home_container}>
             <View style={styles.home_main}>
                 <View style={styles.home_all}>
-                    <View style={{ height: keyboardStatus ? '5%': '10%', }}>
-                     <Image source={require('./assets/logo.jpg')} style={{width:60, height:50}} />
+                    <View style={{ height: keyboardStatus ? '5%' : '10%', }}>
+                        <Image source={require('./assets/logo.jpg')} style={{ width: 60, height: 50 }} />
                     </View>
                     <View style={{ height: '5%', }}>
                         <Text style={styles.text_font}>
@@ -37,7 +50,7 @@ export const Home = ({navigation,route}) => {
 
                         <Text style={styles.new_font}>
                             {"\n"}
-                            if your are new / <Text style={{ fontWeight: '700', fontSize: 15, color: 'black' }} onPress={Sign}>Create now</Text>
+                            if your are new / <Text style={{ fontWeight: '700', fontSize: 15, color: 'black' }} onPress={e => navigation.navigate('sign')}>Create now</Text>
                         </Text>
                     </View>
                     <KeyboardAvoidingView
@@ -45,46 +58,51 @@ export const Home = ({navigation,route}) => {
 
                     >
                         <View style={{ height: '70%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                            <TouchableOpacity style={{ borderColor: focusinputone ? '#0066ff' : '#f6f6f6', borderWidth: 1, ...styles.touchableone }} >
+                            <TouchableOpacity style={{ borderColor: loginstatus ? 'red' : (focusinputone ? '#0066ff' : '#f6f6f6'), borderWidth: 1, ...styles.touchableone }} >
                                 <View style={styles.viewone}>
                                     <Icon name="user" backgroundColor="#3b5998" size={18} />
                                     <TextInput placeholder='username or phone ' autoCapitalize='none' style={styles.inputone}
                                         onPressIn={e => { setfocusInputone(true), setfocusInputtwo(false), setKeyboardStatus(true) }}
-                                        onChangeText={e=> setloginUsername(e)}
+                                        onChangeText={e => setloginUsername(e)}
                                     />
                                 </View>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={{ borderColor: focusinputtwo ? '#0066ff' : '#f6f6f6', borderWidth: 1, marginTop: 20, ...styles.touchableone }}>
+                            <TouchableOpacity style={{ borderColor: loginstatus ? 'red' : (focusinputtwo ? '#0066ff' : '#f6f6f6'), borderWidth: 1, marginTop: 20, ...styles.touchableone }}>
                                 <View style={styles.viewone}>
                                     <Ant name="lock" backgroundColor="#3b5998" size={18} />
-                                    <TextInput secureTextEntry={passwordvisibility} placeholder='password' onPressIn={e => { setfocusInputtwo(true), setfocusInputone(false), setKeyboardStatus(true) }} autoCapitalize='none' style={{width:loginpassword!==''? '80%' : '90%',...styles.inputtwo}}
-                                    onChangeText={e=> setloginPassword(e) }
+                                    <TextInput secureTextEntry={passwordvisibility} placeholder='password' onPressIn={e => { setfocusInputtwo(true), setfocusInputone(false), setKeyboardStatus(true) }} autoCapitalize='none' style={{ width: loginpassword !== '' ? '80%' : '90%', ...styles.inputtwo }}
+                                        onChangeText={e => setloginPassword(e)}
                                     />
-                                  {
-                                      loginpassword!=='' ?(passwordvisibility &&   <Material name='visibility-off' size={18} onPress={e=> setpasswordVisibility(false)}  /> ||   <Material name='visibility' size={18} onPress={e=> setpasswordVisibility(true)} />): null
-                                  }
-                                    
+                                    {
+                                        loginpassword !== '' ? (passwordvisibility && <Material name='visibility-off' size={18} onPress={e => setpasswordVisibility(false)} /> || <Material name='visibility' size={18} onPress={e => setpasswordVisibility(true)} />) : null
+                                    }
+
                                 </View>
                             </TouchableOpacity>
                             <Text style={{ textAlign: 'left', width: '100%', marginTop: 10 }}>
                                 Forgot password ? / <Text style={{ color: 'black', fontWeight: '600' }}>Reset</Text>
                             </Text>
+                            {loginstatus && <Text style={{ color: 'red', textAlign: 'left', width: '100%', marginTop: 10 }}>
+                                Incorrect information
+                            </Text>}
                         </View>
                     </KeyboardAvoidingView>
 
                 </View>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : "height"}
-                    style={{position:'absolute',bottom:40,width:'100%',marginLeft:'auto',marginRight:'auto'}}
+                    style={{ position: 'absolute', bottom: 40, width: '100%', marginLeft: 'auto', marginRight: 'auto' }}
                 >
                     <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <TouchableOpacity  style={styles.login}  onPress={Login}>
-                            <Text style={{ color: 'white', fontSize: 20 }}>
+                        <TouchableOpacity style={{ backgroundColor: loginusername !== '' && loginpassword !== '' ? '#0066ff' : '#eeee', ...styles.login }} onPress={Login}>
+                                    {!isloading && <Text style={{ color: 'white', fontSize: 20 }}>
                                 Login
-                            </Text>
+                            </Text> ||   <ActivityIndicator color='white'  /> }
+                            
+                           
                         </TouchableOpacity>
-                        <Text style={{ marginTop: 10, color: '#0066ff' }} onPress={e=> navigation.navigate('sign')}>Create account</Text>
+                        <Text style={{ marginTop: 10, color: '#0066ff' }} onPress={e => navigation.navigate('sign')}>Create account</Text>
                     </View>
                 </KeyboardAvoidingView>
             </View>
