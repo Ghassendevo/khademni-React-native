@@ -13,7 +13,8 @@ import Material from 'react-native-vector-icons/MaterialCommunityIcons'
 import Evil from 'react-native-vector-icons/EvilIcons'
 import SlidingPanel from 'react-native-sliding-up-down-panels';
 import { useDispatch, useSelector } from 'react-redux'
-export const Khademni = () => {
+export const Khademni = ({navigation,route}) => {
+    const {id,username, password,job} = route.params;
     const Tab = createBottomTabNavigator();
     const { width, height } = Dimensions.get('window');
     const reftopanel = useRef()
@@ -23,6 +24,7 @@ export const Khademni = () => {
             type: 'POST'
         }
     }
+    const userSession = useSelector(state=>state.userSession)
     const valuepost = useSelector(state => state.post)
     useEffect(() => {
         reftopanel.current?.onRequestStart()
@@ -96,7 +98,7 @@ export const Khademni = () => {
                 }}
             >
                 <Tab.Group headerMode='none' screenOptions={{ presentation: 'modal' }}>
-                    <Tab.Screen name="Job" component={FindJob}
+                    <Tab.Screen name="Job"  children={()=><FindJob route={route} navigation={navigation}/>}
                         options={{
                             headerShown: true,
                             headerShadowVisible: false,

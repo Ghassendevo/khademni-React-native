@@ -7,7 +7,7 @@ import Materialicons from 'react-native-vector-icons/MaterialIcons'
 import { KeyboardAvoidingView } from "react-native";
 import { ScrollView } from "react-native";
 import { useDispatch, useSelector } from 'react-redux';
-export const Post = () => {
+export const Post = ({navigation, route}) => {
     const [checked, setChecked] = React.useState(false);
     const [validate, setValidate] = useState('')
     const [categorie, setCategorie] = useState('')

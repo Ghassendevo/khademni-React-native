@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, SafeAreaView, Text, Image, TouchableOpacity, ScrollView,Dimensions } from "react-native"
+import { useNavigation } from "@react-navigation/native";
+import { View, SafeAreaView, Text, Image, TouchableOpacity, ScrollView, Dimensions } from "react-native"
 import { FlatList, TextInput } from "react-native-gesture-handler"
 import { mainstyle } from "./khademni-style"
 import Feather from 'react-native-vector-icons/Feather'
@@ -9,27 +10,76 @@ import Ant from 'react-native-vector-icons/AntDesign'
 import Material from 'react-native-vector-icons/MaterialCommunityIcons'
 import SkeletonContent from 'react-native-skeleton-content';
 import MaterialC from 'react-native-vector-icons/MaterialIcons'
-import {useDispatch,useSelector} from 'react-redux'
-const FindJob = ({navigation}) => {
+import { useDispatch, useSelector } from 'react-redux'
+import axios from 'axios';
+const FindJob = ({ navigation, route }) => {
+    const jobs = route.params.job
     const NUM_OF_LINES = 4;
     const [selected, setSeletcted] = useState('all')
     const [isloading, setisLoading] = useState(false)
     const [showMore, setShowMore] = useState(null);
     const [numOfLines, setNumOfLines] = useState(4);
-    
+    const [jobff, setjobff] = useState([])
+    const jobfromredux = useSelector(state => state.jobsredux);
     const [job, setJob] = useState([
-        { id: 1, user: 'ghassen', title: 'Build AI and ML product Recommendation system and AI chat app for an existing web app', budget: '$10 - $250', bids: 3, city: 'Tunisia', description: 'wthe scroll veiw along the ai bounces when it reaches the end of the content if the content is larger than the scroll view along the d of the content if the content is larger than the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the', star: '3.7', time: '3 hours' },
-        { id: 2, user: 'ghassen', title: 'Build AI and ML product Recommendation system and AI chat app for an existing web app', budget: '$10 - $250', bids: 3, city: 'Tunisia', description: 'wthe scroll veiw along the ai bounces when it reaches the end of the content if the content is larger than the scroll view along the d of the content if the content is larger than the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the', star: '3.7', time: '3 hours' },
+        { key: 2, userId: '', jobId: '', categorie: 'all', fullname: 'ghassen', title: 'Build AI and ML product Recommendation system and AI chat app for an existing web app', budget: '$10 - $250', bids: 3, city: 'Tunisia', description: 'wthe scroll veiw along the ai bounces when it reaches the end of the content if the content is larger than the scroll view along the d of the content if the content is larger than the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the', star: '3.7', time: '3 hours' },
+        { key: 1, userId: '', jobId: '', fullname: 'ghassen', title: 'Build AI and ML product Recommendation system and AI chat app for an existing web app', budget: '$10 - $250', bids: 3, city: 'Tunisia', description: 'wthe scroll veiw along the ai bounces when it reaches the end of the content if the content is larger than the scroll view along the d of the content if the content is larger than the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the the scroll view along the the', star: '3.7', time: '3 hours' },
+
     ])
-    const onTextLayout = useCallback(e => {
-        if (e.nativeEvent.lines.length >= numOfLines) setNumOfLines(e.nativeEvent.lines.length), setShowMore(true)
-        else setShowMore(null);
-    });
+    useEffect(() => {
+        if (jobfromredux !== false) {
+            if (jobfromredux !== jobff) {
+                setjobff(jobfromredux)
+                const shit = {
+                    key: job[0].key + 1,
+                    userId: jobfromredux.userId,
+                    jobId: jobfromredux.jobId,
+                    categorie: jobfromredux.categorie,
+                    fullname: jobfromredux.fullname,
+                    title: jobfromredux.title,
+                    budget: `$${jobfromredux.budgetFrom} - $${jobfromredux.budgetTo}`,
+                    bids: jobfromredux.bids,
+                    city: jobfromredux.place,
+                    description: jobfromredux.description,
+                    star: jobfromredux.star,
+                    time: '3 hours',
+                }
+                setJob([shit, ...job])
+
+            }
+        }
+    }, [jobfromredux])
+
+    // const onTextLayout = useCallback(e => {
+    //     if (e.nativeEvent.lines.length >= numOfLines) setNumOfLines(e.nativeEvent.lines.length), setShowMore(true)
+    //     else setShowMore(null);
+    // });
     const setFindBy = (e) => {
         setSeletcted(e);
     }
     useEffect(() => {
         //fetch server to get information
+        axios.post(`http://172.20.10.12:3000/getPost`, {
+            data: selected,
+        }).then(succ => {
+            // const toData = {
+            //     key: job.length > 0 ? job[0].key + 1 : 1,
+            //     userId: succ.data.user,
+            //     jobId: succ.data.id,
+            //     categorie: succ.data.categorie,
+            //     fullname: succ.data.fullname,
+            //     title: succ.data.title,
+            //     budget: `$${succ.data.budgetFrom} - $${succ.data.budgetTo}`,
+            //     bids: succ.data.bids,
+            //     city: succ.data.place,
+            //     description: succ.data.description,
+            //     star: succ.data.star,
+            //     time: succ.data.date,
+            // }
+            // setJob([toData,...job]);
+        }).catch(err => {
+            throw err;
+        })
     }, [selected])
     const showLess = useCallback(() => {
         setNumOfLines('auto'), setShowMore(false)
@@ -39,13 +89,13 @@ const FindJob = ({navigation}) => {
         setNumOfLines(4)
     }, [showMore])
     const dispatch = useDispatch();
-    const value = useSelector(state=>state.post)
-    const post = ()=>{
-        return{
-            type:'POST'
+    const value = useSelector(state => state.post)
+    const post = () => {
+        return {
+            type: 'POST'
         }
     }
-    const addPost = ()=>{
+    const addPost = () => {
         navigation.navigate('post')
         dispatch(post())
     }
@@ -79,7 +129,7 @@ const FindJob = ({navigation}) => {
 
                     </View>
                     <View style={{ width: '90%', marginTop: 10, }}>
-                        <Text style={{ letterSpacing: 0.2 }} onTextLayout={onTextLayout} numberOfLines={numOfLines} >
+                        <Text style={{ letterSpacing: 0.2 }} >
                             {e.description}
                         </Text>
                         {
@@ -122,7 +172,7 @@ const FindJob = ({navigation}) => {
 
         ) : (
             <>
-               
+
 
                 <View style={{ flex: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
 
@@ -139,14 +189,14 @@ const FindJob = ({navigation}) => {
                             flex: 1,
                             justifyContent: 'center', alignItems: 'center'
                         }}
-                        onPress={addPost}
+                            onPress={addPost}
                         >
                             <MaterialC name='post-add' size={30} color='#0066ff' />
                         </TouchableOpacity>
                         <FlatList style={{ width: '100%', marginTop: 10, }}
                             data={job}
                             renderItem={({ item }) => Item(item)}
-                            keyExtractor={item => item.id}
+                            keyExtractor={item => item.key}
                             ListHeaderComponent={() => (
                                 <>
                                     <View style={{ width: '90%', marginLeft: 'auto', marginRight: 'auto' }}>

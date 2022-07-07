@@ -5,7 +5,9 @@ import Icon from 'react-native-vector-icons/Feather';
 import Ant from 'react-native-vector-icons/AntDesign';
 import Material from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux'
 export const Home = ({ navigation, route }) => {
     const [focusinputone, setfocusInputone] = useState(false);
     const [focusinputtwo, setfocusInputtwo] = useState(false);
@@ -15,7 +17,36 @@ export const Home = ({ navigation, route }) => {
     const [passwordvisibility, setpasswordVisibility] = useState(true);
     const [loginstatus, setloginStatus] = useState(false);
     const [isloading, setisLoading] = useState(false);
+    const [userSession, setuserSession] = useState({
+        id: null,
+        user: '',
+        password: '',
+    })
+    const dispatch = useDispatch();
+    const [id, setId] = useState(false);
+    const islogin = useSelector(state => state.islogin)
+
     const Login = () => {
+        const userSessionData = {
+            id: id,
+            user: loginpassword,
+            password: loginpassword,
+        }
+        const dispatchuserSession = (e) => {
+            return {
+                type: 'USERSESSION',
+                payload: e,
+            }
+        }
+        const storeData = async (value) => {
+            try {
+                const jsonValue = JSON.stringify(value)
+                await AsyncStorage.setItem('userSession', jsonValue)
+            } catch (err) {
+                // saving error
+                alert(err)
+            }
+        }
         if (loginusername !== '' && loginpassword !== '') {
             setisLoading(true);
             const data = { username: loginusername, password: loginpassword };
@@ -23,16 +54,38 @@ export const Home = ({ navigation, route }) => {
                 data: data,
             }).then(res => {
                 setisLoading(false)
-                if (res.data) setloginStatus(true)
-                else setloginStatus(true), setTimeout(() => {
+                if (res.data.msg) {
+                    dispatch(dispatchuserSession({
+                        id: res.data.id,
+                        username: loginusername,
+                        password: loginpassword,
+                    }))
+                    setId(res.data.id)
                     setloginStatus(false)
-                }, 2000);
+                    setuserSession({
+                        id: res.data.id,
+                        username: loginusername,
+                        password: loginpassword,
+                    })
+                    storeData(userSessionData)
+                    navigation.navigate('find', { id: res.data.id, username: loginusername, password: loginpassword,job:false })
+                    const anothervalue = AsyncStorage.getItem('userSession')
+
+                }
+                else {
+                    setloginStatus(true);
+                    stopTime();
+                }
             })
         }
 
 
     }
-
+    const stopTime = () => {
+        setTimeout(() => {
+            setloginStatus(false)
+        }, 2000);
+    }
     return (
         <View style={styles.home_container}>
             <View style={styles.home_main}>
@@ -96,11 +149,11 @@ export const Home = ({ navigation, route }) => {
                 >
                     <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         <TouchableOpacity style={{ backgroundColor: loginusername !== '' && loginpassword !== '' ? '#0066ff' : '#eeee', ...styles.login }} onPress={Login}>
-                                    {!isloading && <Text style={{ color: 'white', fontSize: 20 }}>
+                            {!isloading && <Text style={{ color: 'white', fontSize: 20 }}>
                                 Login
-                            </Text> ||   <ActivityIndicator color='white'  /> }
-                            
-                           
+                            </Text> || <ActivityIndicator color='white' />}
+
+
                         </TouchableOpacity>
                         <Text style={{ marginTop: 10, color: '#0066ff' }} onPress={e => navigation.navigate('sign')}>Create account</Text>
                     </View>
