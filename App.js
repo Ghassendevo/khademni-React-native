@@ -44,7 +44,6 @@ export default function App() {
     <Provider store={store}>
       <NavigationContainer >
         <Stack.Navigator>
-
           <Stack.Screen name='land' component={Land}
             options={{
               headerShown: false,

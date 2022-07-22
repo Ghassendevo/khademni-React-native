@@ -30,7 +30,7 @@ const FindJob = ({ navigation, route }) => {
         if (jobfromredux !== false) {
             if (jobfromredux !== jobff) {
                 setjobff(jobfromredux)
-                const shit = {
+                const Jdata = {
                     key: job[0].key + 1,
                     userId: jobfromredux.userId,
                     jobId: jobfromredux.jobId,
@@ -44,7 +44,7 @@ const FindJob = ({ navigation, route }) => {
                     star: jobfromredux.star,
                     time: '3 hours',
                 }
-                setJob([shit, ...job])
+                setJob([Jdata, ...job])
 
             }
         }
